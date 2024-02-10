@@ -4,10 +4,11 @@ const int MPU_addr=0x68;
 double GyZ, GyZError,z;
 int angle;
 float motor_angle;
+float transform = 0.33333333; //counter is 54 at 180 degrees rotation
 float elapsedTime, currentTime, previousTime;
  
 #define output2A 2//interupt pin
-#define output2B 4
+#define output2B A0
 #define M2speed 6
 #define M2a 8
 #define M2b 9

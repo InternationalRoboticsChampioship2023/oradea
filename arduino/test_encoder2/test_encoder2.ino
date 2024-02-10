@@ -5,7 +5,7 @@
  * same code on the Arduino Uno, Arduino Nano, Arduino Mega, etc.
  */
 #define Encoder_output_A 2 // pin2 of the Arduino
-#define Encoder_output_B 4 // pin 3 of the Arduino
+#define Encoder_output_B A0 // pin 3 of the Arduino
 // these two pins has the hardware interrupts as well. 
  
 int Count_pulses = 0;
