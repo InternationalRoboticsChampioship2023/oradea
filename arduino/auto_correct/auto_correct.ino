@@ -101,7 +101,7 @@ void loop() {
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_addr,6,true);
   angle_read=(Wire.read()<<8|Wire.read())/131.0;
-  angle_read = angle_read -1.43; //-1*rezult from calc_error()
+  angle_read = angle_read -0.25; //-1*rezult from calc_error()
   angle_double= angle_double + angle_read * elapsedTime;
   angle = (int)angle_double;
   correction();

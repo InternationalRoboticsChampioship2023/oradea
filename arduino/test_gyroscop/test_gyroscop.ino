@@ -21,9 +21,9 @@ void loop(){
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x47);
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_addr,6,true);
+  Wire.requestFrom(MPU_addr,4,true);
   GyZ=(Wire.read()<<8|Wire.read())/131.0;
-  GyZ = GyZ -1.43; //-1*rezult from calc_error()
+  GyZ = GyZ -1.56; //-1*rezult from calc_error()
   z= z+GyZ*elapsedTime;
   angle = (int)z;
   Serial.print(angle);
