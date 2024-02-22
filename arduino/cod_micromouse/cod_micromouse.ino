@@ -47,3 +47,11 @@ void loop() {
   }
   Serial.println(agl);
 }
+
+
+
+/*
+switch on pin 0or 1 for if to save the maze to sd or to read it
+the bot can save the maze and then load it after repowering it
+
+*/
