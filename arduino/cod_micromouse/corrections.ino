@@ -1,7 +1,6 @@
 #include <Wire.h>
-double error=0 , angle_double =0 ;
+double error=1.512 , angle_double =0, angle_read;
 int adress;
-int angle =0 ;
 void corrections_begin(int adrr){
   adress = adrr;
   Wire.begin();
@@ -9,25 +8,30 @@ void corrections_begin(int adrr){
   Wire.write(0x6B);
   Wire.write(0x00);
   Wire.endTransmission(true);
-  calc_error();
+  //calc_error();
+  //Serial.println(error);
 }
 
-int get_angle(double elapsedTime){
-  double angle_read;
+double get_angle(double elapsedTime){
   Wire.beginTransmission(adress);
   Wire.write(0x47);
-  Wire.endTransmission(false);
-  Wire.requestFrom(adress,4,true);
-  angle_read=(Wire.read()<<8|Wire.read())/131.0;
-  angle_read = angle_read -error; //-1*1.43
-  angle_double= angle_double + angle_read * elapsedTime;
-  angle = (int)angle_double;
-  return angle;
+  if(Wire.endTransmission(false)!=4){
+    Wire.requestFrom(adress,2,true);
+    angle_read=(Wire.read()<<8|Wire.read())/131.0;
+    angle_read = angle_read -error; //-1*1.43
+    angle_double= angle_double + angle_read * elapsedTime;
+    Serial.println("ok");
+    return angle_double;
+  }else{
+    Serial.println("error 4");
+    return 0;
+  }
+  
 }
 
 void calc_error(){
   int reading;
-  for(int i = 0;i<2000;i++){
+  for(int i = 0;i<4000;i++){
     Wire.beginTransmission(adress);
     Wire.write(0x47);
     Wire.endTransmission(false);
@@ -35,6 +39,6 @@ void calc_error(){
     reading=(Wire.read()<<8|Wire.read())/131.0;
     error = error + reading;
   }
-  error = error/2000;
+  error = error/4000;
   return error;
 }
