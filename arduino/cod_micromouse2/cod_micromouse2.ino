@@ -1,4 +1,3 @@
-
 #include<Wire.h>
  
 const int MPU_addr=0x68;
@@ -24,7 +23,7 @@ void setup(){
 
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x1B);                   // Talk to the GYRO_CONFIG register (1B hex)
-  Wire.write(0x10);                   // Set the register bits as 00010000 (1000deg/s full scale)
+  Wire.write(0x18);                   // Set the register bits as 00011000 (2000deg/s full scale)
   Wire.endTransmission(true);
   
   pinMode(MSV, OUTPUT);
@@ -45,11 +44,11 @@ void loop(){
   Wire.write(0x47);
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_addr, 2, true);
-  GyZ=(Wire.read()<<8|Wire.read())/32.8;
-  GyZ = GyZ -1.0; //-1*rezult from calc_error()
+  GyZ=(Wire.read()<<8|Wire.read())/16.4;
+  GyZ = GyZ -1.1; //-1*rezult from calc_error()
   z= z+GyZ*elapsedTime;
   angle = (int)z;
-  Serial.print(angle);
+  //Serial.print(angle);
   
   
   if(angle>desired_angle){
@@ -73,6 +72,10 @@ void loop(){
     analogWrite(MDV, 0);
     digitalWrite(MD1, HIGH);
     digitalWrite(MD2, LOW);
+  }
+
+  if(currentTime>=5000){
+    desired_angle=360;
   }
 }
 
