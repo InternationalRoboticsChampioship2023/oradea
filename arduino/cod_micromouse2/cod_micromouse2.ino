@@ -2,13 +2,13 @@
 #include<Wire.h>
  
 const int MPU_addr=0x68;
-double GyZ, GyZError,z, a, b;
+double GyZ, GyZError,z;
 int angle,desired_angle=0;
 float elapsedTime, currentTime, previousTime;
 
 #define MSV 5
-#define MS1 4
-#define MS2 A2
+#define MS1 A2
+#define MS2 4
 #define MDV 6
 #define MD1 8
 #define MD2 7
@@ -21,12 +21,12 @@ void setup(){
   Wire.write(0x6B);
   Wire.write(0x00);
   Wire.endTransmission(true);
-/*
+
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x1B);                   // Talk to the GYRO_CONFIG register (1B hex)
   Wire.write(0x10);                   // Set the register bits as 00010000 (1000deg/s full scale)
   Wire.endTransmission(true);
-  */
+  
   pinMode(MSV, OUTPUT);
   pinMode(MS1, OUTPUT);
   pinMode(MS2, OUTPUT);
@@ -42,16 +42,14 @@ void loop(){
   currentTime = millis();            // Current time actual time read
   elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
   Wire.beginTransmission(MPU_addr);
-  Wire.write(0x43);
+  Wire.write(0x47);
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_addr, 6, true);
-  a=(Wire.read()<<8|Wire.read())/131.0;
-  b=(Wire.read()<<8|Wire.read())/131.0;
-  GyZ=(Wire.read()<<8|Wire.read())/131.0;
-  GyZ = GyZ -1.5; //-1*rezult from calc_error()
+  Wire.requestFrom(MPU_addr, 2, true);
+  GyZ=(Wire.read()<<8|Wire.read())/32.8;
+  GyZ = GyZ -1.0; //-1*rezult from calc_error()
   z= z+GyZ*elapsedTime;
   angle = (int)z;
-  //Serial.print(angle);
+  Serial.print(angle);
   
   
   if(angle>desired_angle){
