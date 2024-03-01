@@ -17,7 +17,7 @@ int m_speed = 100;
 #define EnSB A0
 #define EnDA 3 // pin2 of the Arduino
 #define EnDB A1
-int pulsesS=0, pulsesD=0,a,b;
+int pulses=0,a;
 double wheel_circ = 9.11, rev;
 int pulsesRev;
 
@@ -43,9 +43,6 @@ void setup(){
   pinMode(EnSA,INPUT); // sets the Encoder_output_A pin as the input
   pinMode(EnSB,INPUT); // sets the Encoder_output_B pin as the input
   attachInterrupt(digitalPinToInterrupt(EnSA),MSEn,RISING);
-  pinMode(EnDA,INPUT); // sets the Encoder_output_A pin as the input
-  pinMode(EnDB,INPUT); // sets the Encoder_output_B pin as the input
-  attachInterrupt(digitalPinToInterrupt(EnDA),MDEn,RISING);
   //calc_error();
   delay(1000);
   
@@ -54,48 +51,34 @@ void setup(){
 void MSEn(){
   a = digitalRead(EnSB);
   if(a > 0){
-    pulsesS++;
+    pulses++;
   }
   else{
-    pulsesS--;
+    pulses--;
   }
 }
-void MDEn(){
-  b = digitalRead(EnDB);
-  if(b > 0){
-    pulsesD--;
-  }
-  else{
-    pulsesD++;
-  }
-}
-
 
 void move_dist(double dist){//in cm
   rev = dist/wheel_circ;
   pulsesRev = int(rev*102);//102 pulses/rev for encoder
-  if(pulsesRev > pulsesS){
+  if(pulsesRev > pulses){
     analogWrite(MSV, m_speed);
     digitalWrite(MS1, HIGH);
     digitalWrite(MS2, LOW);
-  }else if(pulsesRev < pulsesS){
-    analogWrite(MSV, m_speed);
-    digitalWrite(MS1, LOW);
-    digitalWrite(MS2, HIGH);
-  }else{
-    analogWrite(MSV, 0);
-    digitalWrite(MS1, LOW);
-    digitalWrite(MS2, HIGH);
-  }
-  if(pulsesRev > pulsesD){
     analogWrite(MDV, m_speed);
     digitalWrite(MD1, HIGH);
     digitalWrite(MD2, LOW);
-  }else if(pulsesRev < pulsesD){
+  }else if(pulsesRev < pulses){
+    analogWrite(MSV, m_speed);
+    digitalWrite(MS1, LOW);
+    digitalWrite(MS2, HIGH);
     analogWrite(MDV, m_speed);
     digitalWrite(MD1, LOW);
     digitalWrite(MD2, HIGH);
   }else{
+    analogWrite(MSV, 0);
+    digitalWrite(MS1, LOW);
+    digitalWrite(MS2, HIGH);
     analogWrite(MDV, 0);
     digitalWrite(MD1, LOW);
     digitalWrite(MD2, HIGH);
@@ -107,8 +90,6 @@ void loop() {
   move_dist(10);
   Serial.print(pulsesRev);
   Serial.print(" ");
-  Serial.print(pulsesS);
-  Serial.print(" ");
-  Serial.print(pulsesD);
+  Serial.print(pulses);
   Serial.println();
 }
