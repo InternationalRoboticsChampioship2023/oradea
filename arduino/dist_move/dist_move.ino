@@ -12,6 +12,7 @@ float elapsedTime, currentTime, previousTime;
 #define MD1 8
 #define MD2 7
 int m_speed = 100;
+int ms_speed=0, md_speed=0;
 
 #define EnSA 2 // pin2 of the Arduino
 #define EnSB A0
@@ -58,38 +59,70 @@ void MSEn(){
   }
 }
 
+void motors(int ms, int md){ // dir=1=> high
+  if(ms<0){
+    digitalWrite(MS1, 1);
+    digitalWrite(MS2, 0);
+  }else{
+    digitalWrite(MS1, 0);
+    digitalWrite(MS2, 1);
+  }
+  if(md<0){
+    digitalWrite(MD1, 1);
+    digitalWrite(MD2, 0);
+  }else{
+    digitalWrite(MD1, 0);
+    digitalWrite(MD2, 1);
+  }
+  analogWrite(MSV, abs(ms));
+  analogWrite(MDV, abs(md));
+}
+
 void move_dist(double dist){//in cm
   rev = dist/wheel_circ;
-  pulsesRev = int(rev*102);//102 pulses/rev for encoder
+  pulsesRev = int(rev*120);//102 pulses/rev for encoder
   if(pulsesRev > pulses){
-    analogWrite(MSV, m_speed);
-    digitalWrite(MS1, HIGH);
-    digitalWrite(MS2, LOW);
-    analogWrite(MDV, m_speed);
-    digitalWrite(MD1, HIGH);
-    digitalWrite(MD2, LOW);
+    ms_speed=-1*m_speed;
+    md_speed=-1*m_speed;
   }else if(pulsesRev < pulses){
-    analogWrite(MSV, m_speed);
-    digitalWrite(MS1, LOW);
-    digitalWrite(MS2, HIGH);
-    analogWrite(MDV, m_speed);
-    digitalWrite(MD1, LOW);
-    digitalWrite(MD2, HIGH);
+    ms_speed=m_speed;
+    md_speed=m_speed;
   }else{
-    analogWrite(MSV, 0);
-    digitalWrite(MS1, LOW);
-    digitalWrite(MS2, HIGH);
-    analogWrite(MDV, 0);
-    digitalWrite(MD1, LOW);
-    digitalWrite(MD2, HIGH);
+    ms_speed=0;
+    md_speed=0;
+  }
+}
+
+void corect_dir(){
+  previousTime = currentTime;      
+  currentTime = millis();
+  elapsedTime = (currentTime - previousTime) / 1000;
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x47);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr, 2, true);
+  GyZ=(Wire.read()<<8|Wire.read())/16.4;
+  GyZ = GyZ -1.6; //-1*rezult from calc_error()
+  z= z+GyZ*elapsedTime;
+  angle = (int)z;
+  if(angle>desired_angle){
+    ms_speed-=50;
+    md_speed+=50;
+  }else if(angle<desired_angle){
+    ms_speed+=50;
+    md_speed-=50;
   }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   move_dist(10);
+  corect_dir();
+  motors(ms_speed, md_speed);
   Serial.print(pulsesRev);
   Serial.print(" ");
   Serial.print(pulses);
+  Serial.print(" ");
+  Serial.print(angle);
   Serial.println();
 }
