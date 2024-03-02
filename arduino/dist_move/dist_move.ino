@@ -11,7 +11,8 @@ float elapsedTime, currentTime, previousTime;
 #define MDV 6
 #define MD1 8
 #define MD2 7
-int m_speed = 100;
+int m_speed = 70;
+int rotation_speed=70;
 int ms_speed=0, md_speed=0;
 
 #define EnSA 2 // pin2 of the Arduino
@@ -77,8 +78,9 @@ void motors(int ms, int md){ // dir=1=> high
   analogWrite(MSV, abs(ms));
   analogWrite(MDV, abs(md));
 }
-
-void move_dist(double dist){//in cm
+//return 1 for completion
+//retuns 0 for in progress
+int move_dist(double dist){//in cm
   rev = dist/wheel_circ;
   pulsesRev = int(rev*120);//102 pulses/rev for encoder
   if(pulsesRev > pulses){
@@ -90,7 +92,9 @@ void move_dist(double dist){//in cm
   }else{
     ms_speed=0;
     md_speed=0;
+    return 1;
   }
+  return 0;
 }
 
 void corect_dir(){
@@ -116,7 +120,9 @@ void corect_dir(){
 
 void loop() {
   // put your main code here, to run repeatedly:
-  move_dist(10);
+  if(move_dist(10)==1){
+    desired_angle=90;
+  }
   corect_dir();
   motors(ms_speed, md_speed);
   Serial.print(pulsesRev);
