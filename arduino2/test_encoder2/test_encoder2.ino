@@ -1,4 +1,4 @@
-#include "arduino2.h" 
+//#include "arduino2.h" 
 /*
  * The purpose of this code is to count the ouput pulses or 
  * the encoder outputs as you rotate the Motor shaft. You can run the 
@@ -14,8 +14,8 @@ int Count_pulsesS = 0;
 int Count_pulsesD = 0;
 void setup() {
 Serial.begin(9600); // activates the serial communication
-pinMode2(EncoderS,INPUT); // sets the Encoder_output_A pin as the input
-pinMode2(EncoderD,INPUT); // sets the Encoder_output_B pin as the input
+pinMode(EncoderS,INPUT); // sets the Encoder_output_A pin as the input
+pinMode(EncoderD,INPUT); // sets the Encoder_output_B pin as the input
 attachInterrupt(digitalPinToInterrupt(EncoderS),DC_MotorS,RISING);
 attachInterrupt(digitalPinToInterrupt(EncoderD),DC_MotorD,RISING);
 }
@@ -30,8 +30,19 @@ void loop() {
 }
  
 void DC_MotorS(){
-  Count_pulsesS++; 
+  int ES = A0;
+  if(digitalRead(ES)==HIGH){
+    Count_pulsesS--; 
+  }else{
+    Count_pulsesS++; 
+  }
+  
 }
 void DC_MotorD(){
-  Count_pulsesD++;
+  int ED = A1;
+  if(digitalRead(ED)==HIGH){
+    Count_pulsesD++; 
+  }else{
+    Count_pulsesD--;
+  }
 }

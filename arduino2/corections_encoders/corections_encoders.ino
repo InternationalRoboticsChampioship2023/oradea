@@ -1,15 +1,16 @@
+//does not work
 #define EncoderS 2 // pin2 of the Arduino
 #define EncoderD 3 // pin 3 of the Arduino
-int MSV =5;
-int MS1 =A2;
-int MS2 =4;
-int MDV =6;
-int MD1 =8;
-int MD2 =7;
-int m_speed = 100, m_speedS, m_speedD;
+#define MSV 5
+#define MS1 A2
+#define MS2 4
+#define MDV 6
+#define MD1 8
+#define MD2 7
+int m_speed = 70, m_speedS, m_speedD;
 
-int Count_pulsesS = 0;
-int Count_pulsesD = 0;
+int Count_pulsesS = 0, pulsesS;
+int Count_pulsesD = 0, pulsesD;
 void setup() {
   Serial.begin(9600); // activates the serial communication
   pinMode(EncoderS,INPUT); // sets the Encoder_output_A pin as the input
@@ -25,11 +26,13 @@ void setup() {
 }
  
 void loop() {
+  pulsesS = Count_pulsesS;
+  pulsesD = Count_pulsesD;
   m_speedS=m_speed;
   m_speedD=m_speed;
-  if(Count_pulsesS>Count_pulsesD){
+  if(pulsesS>pulsesD){
     m_speedD+=50;
-  }else if(Count_pulsesS<Count_pulsesD){
+  }else if(pulsesS<pulsesD){
     m_speedS+=50;
   }
   Serial.print(m_speedS);
