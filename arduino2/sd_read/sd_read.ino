@@ -3,7 +3,7 @@ IMPORTANT NOTES
 
 at end of the line there are 2 caracters CR, LF (13, 10)
 
-end document with blank line (last line to have te 2 caracters mentioned above)
+end document with e
 */
 
 
@@ -14,8 +14,6 @@ end document with blank line (last line to have te 2 caracters mentioned above)
 
 File myFile;
 char x;
-bool mode_sel=false;
-int a=0;
 struct instruction{
   char mode;
   int value;//in mm or degrees
