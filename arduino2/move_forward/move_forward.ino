@@ -46,7 +46,10 @@ void setup(){
   pinMode(MD1, OUTPUT);
   pinMode(MD2, OUTPUT);
   instruction aux;
-  aux.value = 91;
+  aux.value = 60;
+  aux.mode = 'm';
+  instruct.add(aux);
+  aux.value = 30;
   aux.mode = 'm';
   instruct.add(aux);
 }
@@ -57,7 +60,9 @@ void loop(){
   pulsesD = Count_pulsesD;
   correction();
   if(move_dist(instruct[0].value)==1){
-    instruct.remove(0);
+    instruct.removeFirst();
+    Count_pulsesS=0;
+    Count_pulsesD=0;
   }
   motors(ms_speed, md_speed);
   Serial.print(millis ());
