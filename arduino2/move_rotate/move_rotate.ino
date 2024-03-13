@@ -6,7 +6,7 @@
 const int MPU_addr=0x68;
 float error, z;
 int desired_angle;
-bool rotate_set=false;
+bool rotate_set=false, encoder_set = false;
 float elapsedTime, currentTime, previousTime;
 
 #define EncoderS 2 // pin2 of the Arduino
@@ -97,33 +97,46 @@ void loop(){
   md_speed = 0;
   pulsesS = Count_pulsesS;
   pulsesD = Count_pulsesD;
-  if(instruct[0].mode = 'm'){
-    correction();
-    if(move_dist(instruct[0].value)==1){
-      instruct.removeFirst();
-      Count_pulsesS=0;
-      Count_pulsesD=0;
+  if(instruct.getSize()!=0){
+    Serial.print(instruct[0].mode);
+    if(instruct[0].mode = 'm'){
+      correction();
+      if(encoder_set == false){
+        Count_pulsesS=0;
+        Count_pulsesD=0;
+        encoder_set = true;
+      }
+      if(move_dist(instruct[0].value)==1){
+        instruct.removeFirst();
+        encoder_set = false;
+      }
     }
-  }
-  if(instruct[0].mode=='r'){
-    if(rotate_set == false){
-     desired_angle+=instruct[0].value; 
-     rotate_set = true;
+    if(instruct[0].mode=='r'){
+      if(rotate_set == false){
+        desired_angle+=instruct[0].value; 
+        rotate_set = true;
+      }
+      Serial.print(desired_angle);
+      if(rotate()==1){
+        rotate_set=false;
+      instruct.removeFirst(); 
+      }
     }
-    if(rotate()==1){
-      rotate_set=false;
-     instruct.removeFirst(); 
-    }
-  }
   motors(ms_speed, md_speed);
-  Serial.print(instruct[0].mode);
+  
   Serial.println();
+  }else{
+    motors(0,0);
+    Serial.print("done");
+    Serial.println();
+  }
+  
 }
 
 int rotate(){
   int agl= get_angle();
-  Serial.print(desired_angle);
-  Serial.print("     ");
+  //Serial.print(desired_angle);
+  //Serial.print("     ");
   if(agl>desired_angle){
    md_speed+=rotate_speed;
    return 0;

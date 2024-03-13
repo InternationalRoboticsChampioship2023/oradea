@@ -1,3 +1,3 @@
-move_rotate program has problems with the last insctruction and return bs
+for some reason move_roatet jumps over the rotate command
 
 set center of mass backward as to lift the front a bit. At deacceleration, the rubber on the front will slow the robot fast.
