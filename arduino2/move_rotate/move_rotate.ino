@@ -99,19 +99,21 @@ void loop(){
   pulsesD = Count_pulsesD;
   if(instruct.getSize()!=0){
     Serial.print(instruct[0].mode);
-    if(instruct[0].mode = 'm'){
+    if(instruct[0].mode == 'm'){
       correction();
       if(encoder_set == false){
         Count_pulsesS=0;
         Count_pulsesD=0;
+        pulsesS = 0;
+        pulsesD = 0;
         encoder_set = true;
       }
+      Serial.print(instruct[0].value);
       if(move_dist(instruct[0].value)==1){
         instruct.removeFirst();
         encoder_set = false;
       }
-    }
-    if(instruct[0].mode=='r'){
+    }else if(instruct[0].mode=='r'){
       if(rotate_set == false){
         desired_angle+=instruct[0].value; 
         rotate_set = true;

@@ -63,6 +63,8 @@ void loop(){
     if(rotate_set == false){
      desired_angle+=instruct[0].value; 
      rotate_set = true;
+     Serial.print("1");
+    Serial.print("     ");
     }
     if(rotate()==1){
       rotate_set=false;
@@ -70,14 +72,14 @@ void loop(){
     }
   }
   motors(ms_speed, md_speed);
-  Serial.print(millis ());
-  Serial.println();
+  //Serial.print(millis ());
+  //Serial.println();
 }
 
 int rotate(){
   int agl= get_angle();
-  Serial.print(desired_angle);
-  Serial.print("     ");
+  //Serial.print(desired_angle);
+  //Serial.print("     ");
   if(agl>desired_angle){
    md_speed+=rotate_speed;
    return 0;
