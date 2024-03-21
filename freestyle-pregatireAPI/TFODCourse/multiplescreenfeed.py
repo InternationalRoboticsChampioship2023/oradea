@@ -1,6 +1,6 @@
 import cv2
 
-# Function to capture video from multiple cameras
+
 def capture_from_cameras(cameras, window_name='Combined Feed'):
     cap_list = [cv2.VideoCapture(cam) for cam in cameras]
 
@@ -9,7 +9,7 @@ def capture_from_cameras(cameras, window_name='Combined Feed'):
 
         # Check if frames are available
         if all(frame is not None for frame in frames):
-            # Arrange frames in a 2x2 grid
+            # 2x2 grid
             top_row = cv2.hconcat([frames[0], frames[1]])
             bottom_row = cv2.hconcat([frames[2], frames[3]])
             combined_feed = cv2.vconcat([top_row, bottom_row])

@@ -1,0 +1,20 @@
+import serial
+import time
+if name == 'main':
+    ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1) //
+    ser.reset_input_buffer() //
+    angle=90
+    dir=1
+    while True:
+        ser.write(str(angle).encode('utf-8')) //
+        line = ser.readline().decode('utf-8').rstrip() //
+        #print(line)
+        if angle>140:
+            dir=0
+        if angle<40:
+            dir=1
+        if dir==1:
+            angle=angle-1
+        if dir==0:
+            angle=angle+1
+        time.sleep(0.1)
