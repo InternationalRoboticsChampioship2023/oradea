@@ -17,7 +17,7 @@ float elapsedTime, currentTime, previousTime;
 #define MDV 6
 #define MD1 8
 #define MD2 7
-int m_speed = 100, corection_speed = 70, rotate_speed=100, stop_speed = -50;
+int m_speed = 70, corection_speed = 70, rotate_speed=100, stop_speed = -55;
 int Count_pulsesS = 0, pulsesS;
 int Count_pulsesD = 0, pulsesD;
 
@@ -112,7 +112,7 @@ void loop(){
       if(move_dist(instruct[0].value)==1){
         instruct.removeFirst();
         encoder_set = false;
-        motors(stop_speed,stop_speed);
+        stop_m();
         delay(1000);
       }
     }else if(instruct[0].mode=='r'){
@@ -124,7 +124,7 @@ void loop(){
       if(rotate()==1){
         rotate_set=false;
         instruct.removeFirst(); 
-        motors(stop_speed,stop_speed);
+        stop_m();
         delay(1000);
       }
     }
@@ -137,6 +137,13 @@ void loop(){
     Serial.println();
   }
   
+}
+
+
+void stop_m(){
+  motors(-200,-200);
+  delay(m_speed/10);
+  motors(stop_speed,stop_speed);
 }
 
 int rotate(){
