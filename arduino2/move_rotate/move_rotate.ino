@@ -2,12 +2,14 @@
 #include <SPI.h>
 #include <SD.h>
 #include <List.hpp>
+#define sgn(x) ((x) < 0 ? -1 : ((x) > 0 ? 1 : 0))
  
 const int MPU_addr=0x68;
 float error, z;
 int desired_angle;
 bool rotate_set=false, encoder_set = false;
 float elapsedTime, currentTime, previousTime;
+float sensitivity = 32.8; //modify if changing sensitivity
 
 #define EncoderS 2 // pin2 of the Arduino
 #define EncoderD 3 // pin 3 of the Arduino
@@ -17,11 +19,11 @@ float elapsedTime, currentTime, previousTime;
 #define MDV 6
 #define MD1 8
 #define MD2 7
-int m_speed = 70, corection_speed = 70, rotate_speed=100, stop_speed = -55;
+int m_speed = 100, corection_speed = 70, rotate_speed=100, stop_speed = -45;
 int Count_pulsesS = 0, pulsesS;
 int Count_pulsesD = 0, pulsesD;
 
-int ms_speed, md_speed;
+int ms_speed, md_speed, ms_old=0, md_old=0;
 float diam = 91.1;
 
 File myFile;
@@ -39,6 +41,17 @@ void setup(){
   Wire.write(0x6B);
   Wire.write(0x00);
   Wire.endTransmission(true);
+
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x1C);                  //Talk to the ACCEL_CONFIG register (1C hex)
+  Wire.write(0x18);                  //Set the register bits as 00011000 (+/- 16g full scale range)
+  Wire.endTransmission(true);        //just to be sure it doesnt affect the other registers
+
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x1B);                   // Talk to the GYRO_CONFIG register (1B hex)
+  Wire.write(0x10);                   // Set the register bits as 00011000 (2000deg/s full scale)
+  Wire.endTransmission(true);         ///check sensitivity if chang here
+  
   error = calc_error();
   pinMode(EncoderS,INPUT); // sets the Encoder_output_A pin as the input
   pinMode(EncoderD,INPUT); // sets the Encoder_output_B pin as the input
@@ -110,11 +123,14 @@ void loop(){
       }
       Serial.print(instruct[0].value);
       if(move_dist(instruct[0].value)==1){
-        instruct.removeFirst();
         encoder_set = false;
-        stop_m();
+        stop_m(instruct[0].mode);
+        instruct.removeFirst();
         delay(1000);
       }
+
+
+      
     }else if(instruct[0].mode=='r'){
       if(rotate_set == false){
         desired_angle+=instruct[0].value; 
@@ -123,13 +139,14 @@ void loop(){
       Serial.print(desired_angle);
       if(rotate()==1){
         rotate_set=false;
+        stop_m(instruct[0].mode);
         instruct.removeFirst(); 
-        stop_m();
         delay(1000);
       }
     }
   motors(ms_speed, md_speed);
-  
+  ms_old = ms_speed;
+  md_old = md_speed;
   Serial.println();
   }else{
     motors(0,0);
@@ -140,21 +157,29 @@ void loop(){
 }
 
 
-void stop_m(){
-  motors(-200,-200);
-  delay(m_speed/10);
-  motors(stop_speed,stop_speed);
+void stop_m(char mode){
+  if(mode == 'm'){
+    motors(-255,-255);
+    delay(m_speed/10);
+    motors(stop_speed,stop_speed);
+  }else if(mode == 'r'){
+    motors(sgn(ms_old)*-255,sgn(md_old)*-255);
+    delay(rotate_speed/10);
+    motors(sgn(ms_old)*stop_speed*-1,sgn(md_old)*stop_speed*-1);
+  }else{
+    motors(0,0);
+  }
 }
 
 int rotate(){
   int agl= get_angle();
-  //Serial.print(desired_angle);
-  //Serial.print("     ");
   if(agl>desired_angle){
+   ms_speed-=rotate_speed;
    md_speed+=rotate_speed;
    return 0;
   }else if(agl<desired_angle){
     ms_speed+=rotate_speed;
+    md_speed-=rotate_speed;
     return 0;
   }
   return 1;
@@ -206,16 +231,15 @@ void motors(int ms, int md){//ms, md reprezents motors speed
 }
 
 int get_angle(){
-  float GyZ;
-  previousTime = currentTime;        // Previous time is stored before the actual time read
-  currentTime = millis();            // Current time actual time read
-  elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
-  
+  float GyZ;  
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x47);
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_addr,2,true);
-  GyZ=(Wire.read()<<8|Wire.read())/131.0 -error; //-1*rezult from calc_error()
+  GyZ=(Wire.read()<<8|Wire.read())/sensitivity -error; //-1*rezult from calc_error()
+  previousTime = currentTime;        // Previous time is stored before the actual time read
+  currentTime = millis();            // Current time actual time read
+  elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
   z= z+GyZ*elapsedTime;
   return -((int)z);
 }
@@ -228,7 +252,7 @@ float calc_error(){
     Wire.write(0x47);
     Wire.endTransmission(false);
     Wire.requestFrom(MPU_addr,2,true);
-    sum+=(Wire.read()<<8|Wire.read())/131.0;
+    sum+=(Wire.read()<<8|Wire.read())/sensitivity;
   }
   sum = sum/steps;
   Serial.println(sum);
