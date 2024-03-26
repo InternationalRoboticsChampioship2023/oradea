@@ -9,7 +9,7 @@ float error, z;
 int desired_angle;
 bool rotate_set=false, encoder_set = false;
 float elapsedTime, currentTime, previousTime;
-float sensitivity = 32.8; //modify if changing sensitivity
+float sensitivity = 65.5; //modify if changing sensitivity
 
 #define EncoderS 2 // pin2 of the Arduino
 #define EncoderD 3 // pin 3 of the Arduino
@@ -19,7 +19,7 @@ float sensitivity = 32.8; //modify if changing sensitivity
 #define MDV 6
 #define MD1 8
 #define MD2 7
-int m_speed = 100, corection_speed = 70, rotate_speed=100, stop_speed = -45;
+int m_speed = 100, corection_speed = 30, rotate_speed=100, stop_speed = -45;
 int Count_pulsesS = 0, pulsesS;
 int Count_pulsesD = 0, pulsesD;
 
@@ -49,7 +49,7 @@ void setup(){
 
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x1B);                   // Talk to the GYRO_CONFIG register (1B hex)
-  Wire.write(0x10);                   // Set the register bits as 00011000 (2000deg/s full scale)
+  Wire.write(0x08);                   // Set the register bits as 00011000 (2000deg/s full scale)
   Wire.endTransmission(true);         ///check sensitivity if chang here
   
   error = calc_error();

@@ -16,7 +16,7 @@ Servo sj;
 
 int gripper_pos = 0;    // variable to store the servo position
 int fb_pos = 180;
-int sj_pos = 0;
+int sj_pos = 180;
 void setup() {
   gripper.attach(3);  // attaches the servo on pin 9 to the servo object
   fb.attach(5);
@@ -24,11 +24,65 @@ void setup() {
 }
 
 void loop() {
+  gripper.write(170);
   fb.write(fb_pos);
   sj.write(sj_pos);
-  for (gripper_pos = 50; gripper_pos <= 170; gripper_pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    gripper.write(gripper_pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15 ms for the servo to reach the position
+  delay(1000);
+
+  while(fb_pos > 80){
+    fb.write(fb_pos);
+    fb_pos--;
+    delay(15);
   }
+  delay(1000);
+
+  gripper.write(50);
+  delay(1000);
+
+  while(fb_pos<150 || sj_pos>50){
+    fb.write(fb_pos);
+    sj.write(sj_pos);
+    if(fb_pos!=150)fb_pos++;
+    if(sj_pos!=50)sj_pos--;
+    delay(15);
+  }
+  delay(1000);
+
+  
+  while(fb_pos<100 || sj_pos>160){
+    fb.write(fb_pos);
+    sj.write(sj_pos);
+    if(fb_pos!=100)fb_pos--;
+    if(sj_pos!=160)sj_pos++;
+    delay(15);
+  }
+  delay(1000);
+
+  gripper.write(170);
+  delay(1000);
+
+  while(fb_pos<100 || sj_pos<160){
+    fb.write(fb_pos);
+    sj.write(sj_pos);
+    if(fb_pos!=100)fb_pos--;
+    if(sj_pos!=160)sj_pos++;
+    delay(15);
+  }
+  delay(1000);
+
+
+  while(fb_pos<180 || sj_pos<180){
+    fb.write(fb_pos);
+    sj.write(sj_pos);
+    if(fb_pos!=180)fb_pos++;
+    if(sj_pos!=180)sj_pos++;
+    delay(15);
+  }
+  //fb.write(180);
+  //sj.write(180);
+  
+  while(1){
+    ;
+  }
+  delay(2000);
 }
