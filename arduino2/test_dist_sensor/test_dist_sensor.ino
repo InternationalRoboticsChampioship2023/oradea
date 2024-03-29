@@ -2,10 +2,9 @@
 
 int trigPin = 9;    // Trigger
 int echoS = A3;    // Echo
-int echoC = A6;
-int echoD = A7;
-long duration;
-float RightSensor,FrontSensor,LeftSensor,distance;
+int echoC = A1;
+int echoD = A0;
+float SensorS,SensorC,SensorD;
  
 void setup() {
   //Serial Port begin
@@ -18,28 +17,25 @@ void setup() {
 }
  
 void loop() {
-  SonarSensor(trigPin, echoS);
-  RightSensor = distance;
-  SonarSensor(trigPin, echoC);
-  LeftSensor = distance;
-  SonarSensor(trigPin, echoD);
-  FrontSensor = distance;
-
-  Serial.print(LeftSensor);
+  SensorS = dist_sensor(echoS);
+  SensorC = dist_sensor(echoC);
+  SensorD = dist_sensor(echoD);
+  Serial.print(SensorS);
   Serial.print(" - ");
-  Serial.print(FrontSensor);
+  Serial.print(SensorC);
   Serial.print(" - ");
-  Serial.println(RightSensor);
+  Serial.print(SensorD);
+  Serial.println();
 }
 
-void SonarSensor(int trigPin,int echoPin)
-{
-digitalWrite(trigPin, LOW);
-delayMicroseconds(2);
-digitalWrite(trigPin, HIGH);
-delayMicroseconds(10);
-digitalWrite(trigPin, LOW);
-duration = pulseIn(echoPin, HIGH);
-distance = (duration/2) / 29.1;
-
+float dist_sensor(int echoPin){
+  long duration;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH, 10000);
+  delay(5);
+  return duration*0.0343/2;
 }

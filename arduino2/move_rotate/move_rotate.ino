@@ -260,19 +260,21 @@ float calc_error(){
 }
 
 void DC_MotorS(){
-  int ES = A0;
+  /*int ES = A0;
   if(digitalRead(ES)==HIGH){
     Count_pulsesS--; 
   }else{
     Count_pulsesS++; 
   }
-  
+  */
+  Count_pulsesS++;
 }
 void DC_MotorD(){
-  int ED = A1;
+  /*int ED = A1;
   if(digitalRead(ED)==HIGH){
     Count_pulsesD++; 
   }else{
     Count_pulsesD--;
-  }
+  }*/
+  Count_pulsesD++;
 }
