@@ -160,11 +160,11 @@ void loop(){
 void stop_m(char mode){
   if(mode == 'm'){
     motors(-255,-255);
-    delay(m_speed/10);
+    delay(m_speed/5);
     motors(stop_speed,stop_speed);
   }else if(mode == 'r'){
     motors(sgn(ms_old)*-255,sgn(md_old)*-255);
-    delay(rotate_speed/10);
+    delay(rotate_speed/5);
     motors(sgn(ms_old)*stop_speed*-1,sgn(md_old)*stop_speed*-1);
   }else{
     motors(0,0);
