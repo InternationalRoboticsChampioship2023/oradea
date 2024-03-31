@@ -79,6 +79,10 @@ def main():
             ymax = int(min(CAMERA_HEIGHT, ymax * CAMERA_HEIGHT))
             
             cv2.rectangle(frame,(xmin, ymin),(xmax, ymax),(0,255,0),3)
+            cv2.line(frame,(0,150),(480,150),(255,0,0),5)
+            cv2.line(frame,(0,490),(480,490),(255,0,0),5)
+            cv2.line(frame,(240,0),(240,640),(255,0,0),5)
+            
             cv2.putText(frame,labels[int(result['class_id'])],(xmin, min(ymax, CAMERA_HEIGHT-20)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),2,cv2.LINE_AA) 
             
         if(int(res['class_id'])!=0):
