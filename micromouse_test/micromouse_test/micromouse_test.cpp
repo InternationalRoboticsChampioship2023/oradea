@@ -39,8 +39,8 @@ void recurs(int x, int y) {
         }
         if (maze[x][y].left == false && dist_maze[x][y - 1] > dist_maze[x][y] + 1)
         {
-            dist_maze[x][y - 1] = dist_maze[x][y] + 1;
-            recurs(x, y - 1);
+            dist_maze[x-1][y] = dist_maze[x][y] + 1;
+            recurs(x-1, y);
         }
         if (maze[x][y].right == false && dist_maze[x][y + 1] > dist_maze[x][y] + 1)
         {
@@ -49,8 +49,8 @@ void recurs(int x, int y) {
         }
         if (maze[x][y].down == false && dist_maze[x + 1][y] > dist_maze[x][y] + 1)
         {
-            dist_maze[x + 1][y] = dist_maze[x][y] + 1;
-            recurs(x + 1, y);
+            dist_maze[x][y+1] = dist_maze[x][y] + 1;
+            recurs(x, y+1);
         }
     }
 }
@@ -148,38 +148,15 @@ int main()
             if (dist_maze[i][j] < 10) {
                 cout << " ";
             }
-        }
-        cout << endl;
-    }
-    cout << "\n" << endl;
-
-    drum_bun(0, 0, 0);
-    for (int i = 0; i < length; i++) {
-        cout << drum_efic[i] << " ";
-    }
-
-    /*
-    for (int i = 0; i < sz; i++) {
-        for (int j = 0; j < sz; j++) {
-            drum_maze[i][j] = -1;
-        }
-    }
-    drum_maze[7][7] = 0;
-    drum_maze[7][8] = 0;
-    drum_maze[8][7] = 0;
-    drum_maze[8][8] = 0;
-    drum(0, 0);
-    for (int i = 0; i < sz; i++) {
-        for (int j = 0; j < sz; j++) {
-            cout << drum_maze[i][j] << " ";
-            if (drum_maze[i][j] < 0  || drum_maze[i][j] > 9) {
+            if (dist_maze[i][j] < 10) {
                 cout << " ";
             }
         }
         cout << endl;
     }
     cout << "\n" << endl;
-    */
+
+
 }
 
 
