@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\projects\\vs\\micromouse_test\\",
+  "WorkspaceRootPath": "E:\\projects\\oradea\\micromouse_test\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1B968EE9-D188-46DF-ACA5-46AFF48D59A4}|micromouse_test\\micromouse_test.vcxproj|E:\\projects\\vs\\micromouse_test\\micromouse_test\\micromouse_test.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{1B968EE9-D188-46DF-ACA5-46AFF48D59A4}|micromouse_test\\micromouse_test.vcxproj|E:\\projects\\oradea\\micromouse_test\\micromouse_test\\micromouse_test.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{1B968EE9-D188-46DF-ACA5-46AFF48D59A4}|micromouse_test\\micromouse_test.vcxproj|solutionrelative:micromouse_test\\micromouse_test.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -14,21 +14,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "micromouse_test.cpp",
-              "DocumentMoniker": "E:\\projects\\vs\\micromouse_test\\micromouse_test\\micromouse_test.cpp",
+              "DocumentMoniker": "E:\\projects\\oradea\\micromouse_test\\micromouse_test\\micromouse_test.cpp",
               "RelativeDocumentMoniker": "micromouse_test\\micromouse_test.cpp",
-              "ToolTip": "E:\\projects\\vs\\micromouse_test\\micromouse_test\\micromouse_test.cpp",
+              "ToolTip": "E:\\projects\\oradea\\micromouse_test\\micromouse_test\\micromouse_test.cpp",
               "RelativeToolTip": "micromouse_test\\micromouse_test.cpp",
-              "ViewState": "AQIAACEAAAAAAAAAAAAAADkAAAAQAAAA",
+              "ViewState": "AQIAACMAAAAAAAAAAAAAADQAAAAbAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-03-31T14:11:13.345Z",
               "EditorCaption": ""
