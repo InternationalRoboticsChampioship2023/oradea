@@ -16,7 +16,7 @@ Servo sj;
 
 int gripper_pos = 0;    // variable to store the servo position
 int fb_pos = 180;
-int sj_pos = 180;
+int sj_pos = 170;
 void setup() {
   gripper.attach(3);  // attaches the servo on pin 9 to the servo object
   fb.attach(5);
@@ -29,7 +29,7 @@ void loop() {
   sj.write(sj_pos);
   delay(1000);
 
-  while(fb_pos > 80){
+  while(fb_pos > 70){
     fb.write(fb_pos);
     fb_pos--;
     delay(15);
@@ -39,21 +39,21 @@ void loop() {
   gripper.write(50);
   delay(1000);
 
-  while(fb_pos<150 || sj_pos>50){
+  while(fb_pos<150 || sj_pos>30){
     fb.write(fb_pos);
     sj.write(sj_pos);
     if(fb_pos!=150)fb_pos++;
-    if(sj_pos!=50)sj_pos--;
+    if(sj_pos!=30)sj_pos--;
     delay(15);
   }
   delay(1000);
 
   
-  while(fb_pos<100 || sj_pos>160){
+  while(fb_pos<50 || sj_pos>180){
     fb.write(fb_pos);
     sj.write(sj_pos);
-    if(fb_pos!=100)fb_pos--;
-    if(sj_pos!=160)sj_pos++;
+    if(fb_pos!=50)fb_pos--;
+    if(sj_pos!=180)sj_pos++;
     delay(15);
   }
   delay(1000);
