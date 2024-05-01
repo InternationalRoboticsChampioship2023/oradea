@@ -35,7 +35,7 @@ previousTime = currentTime;        // Previous time is stored before the actual 
   currentTime = millis();            // Current time actual time read
   elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
   /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp;
+  sensors_event_t a, g, temp; 
   mpu.getEvent(&a, &g, &temp);
 
   /* Print out the values */
@@ -45,7 +45,7 @@ previousTime = currentTime;        // Previous time is stored before the actual 
   Serial.print(",");
   Serial.print(g.gyro.z);
   
-  yaw =  yaw + g.gyro.z *elapsedTime;
+  yaw =  yaw - g.gyro.z *elapsedTime;
   Serial.print(",");
   Serial.print(yaw);
   Serial.println("");
