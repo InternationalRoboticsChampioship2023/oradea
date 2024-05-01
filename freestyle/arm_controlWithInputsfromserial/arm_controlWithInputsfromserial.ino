@@ -1,92 +1,81 @@
 #include <Servo.h>
-#define gripperpin 3
-#define servo1pin 5
-#define servo2pin 6
-#define servo3pin 9
-Servo gripper;
+int in1=2;
+int in2=3;
+int servo1pin=5;
+int servo2pin=6;
+int servo3pin=9;
 Servo bm1;
 Servo bm2;
 Servo base;
 int baseval=0;
 int mijloc=0;
-int gripperval=0;
 int difmijloc=180;
-const int maxpos=180;
-const int minpos=50;
+const int base_rest = 90;
+const int mijloc_rest = 90;
 void setup() {
-  gripper.attach(gripperpin);
-base.attach(servo3pin);
-bm1.attach(sevo1pin);
-bm2.attach(servo2pin);
-Serial.begin(9600);
-gotorestpos();
+  Serial.begin(9600);
+  base.attach(servo3pin);
+  bm1.attach(servo1pin);
+  bm2.attach(servo2pin);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  open_gripper();
+  gotorestpos();
+}
+
+void open_gripper(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  delay(600);//get real time for travel from extremety to extremety
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+}
+
+
+void close_gipper(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  delay(600);//get real time for travel from extremety to extremety
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+}
+
+void move_base(int b){
+  while(baseval!=b){
+    if(baseval>b) {baseval--;}
+    else if(baseval<b){baseval++;}
+    base.write(baseval);
+    delay(20);
+  }
+}
+
+void move_mijloc(int m){
+  while(mijloc!=m){
+    if(mijloc>m) {mijloc--;}
+    else if(mijloc<m){mijloc++;}
+    bm1.write(mijloc);
+    bm2.write(180-mijloc);
+    delay(20);
+  }
 }
 
 void gotorestpos(){
-
-while(baseval!=90){
-if(baseval>90) {baseval--;}
-else{
-basevall++;
+  move_base(base_rest);
+  move_mijloc(mijloc_rest);
+  open_gripper();
 }
-base.write(baseval);
-}
-delay(20);
-
-while(mijloc!=90){
-if(mijloc>90) {mijloc--;}
-else{
-mijloc++;
-}
-bm1.write(mijloc);
-bm2.write(90+mijloc);
-}
-delay(20);
-
-  gripper.write(minpos);
-}
-
-
-
-
-
 
 void catchobj(){
   //daca intra in functie inseamna ca a detectat ceva ce poate apuca
- 
-  gripper.write(maxpos); //deshid gripperul
- 
- while(baseval>0){
-  basevall--;
-  base.write(baseval);//duc baseul la 0 
- }
- delay(20);
-  
-
-while(mijloc>0){
-  mijloc --;
-  bm1.write(mijloc);  //duc bm1 la 0
-bm2.write(difmijloc-mijloc);//duc bm2 la 180
+  move_base(0);
+  move_mijloc(0);
+  //intinde bratul paralel cu pamantul
+  close_gipper();
+  move_base(base_rest);
+  move_mijloc(180);
+  //duce bratul pt descarcare
+  open_gripper();
 }
-delay(20);
-
-gripper.write(minpos); // duc gripper la 0 aka inchis
-  
-while(baseval<90){
-  baseval++;
-  base.write(baseval);//duc base inapoi la 90
-}
-delay(20);
-
-while(mijloc<180){
-  mijloc++;
-   bm1.write(mijloc);  // duc bm1 la 180
-bm2.write(difmijloc-mijloc);// duc bm2 la 0
-}
- gripper.write(maxpos);// deshid gripper aka maxpos / 180
-}
-
-
 
 void loop() {
  if(Serial.available()>0){
