@@ -7,10 +7,11 @@
 #include <Wire.h>
 
 Adafruit_MPU6050 mpu;
-float yaw=0, angle;
+float yaw=0;
+int angle;
 float elapsedTime, currentTime, previousTime;
 sensors_event_t a, g, temp; 
-int rotate_speed = 150;
+int rotate_speed = 70;
 int stop_speed = -20;
 float error;
 
@@ -75,7 +76,7 @@ void loop() {
   }
 }
 
-float get_angle(){
+int get_angle(){
   previousTime = currentTime;        // Previous time is stored before the actual time read
   currentTime = millis();            // Current time actual time read
   elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
