@@ -5,8 +5,8 @@
  * https://www.codeproject.com/Articles/732646/Fast-digital-I-O-for-Arduino
  * dummy pins2_arduino.h to "eightanaloginputs" folder for pro mini
  */
-#define EncoderS 12 // pin2 of the Arduino
-#define EncoderD 13 // pin 3 of the Arduino
+#define EncoderS 34 // pin2 of the Arduino
+#define EncoderD 36 // pin 3 of the Arduino
 // these two pins has the hardware interrupts as well. 
 
 int Count_pulsesS = 0;
@@ -29,7 +29,8 @@ void loop() {
 }
  
 void DC_MotorS(){
-  int ES = 16;
+  int ES = 35;
+  pinMode(ES, INPUT);
   if(digitalRead(ES)==HIGH){
     Count_pulsesS--; 
   }else{
@@ -38,7 +39,8 @@ void DC_MotorS(){
   
 }
 void DC_MotorD(){
-  int ED = 17;
+  int ED = 39;
+  pinMode(ED, INPUT);
   if(digitalRead(ED)==HIGH){
     Count_pulsesD++; 
   }else{

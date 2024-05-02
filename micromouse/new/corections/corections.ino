@@ -9,7 +9,7 @@
 Adafruit_MPU6050 mpu;
 float yaw=0, angle;
 float elapsedTime, currentTime, previousTime;
-int rotate_speed = 70;
+int rotate_speed = 150;
 int stop_speed = -20;
 
 const float RTD = 57.2957795;
@@ -49,10 +49,9 @@ void setup(void) {
 }
 
 void loop() {
-  //angle = get_angle();
-  angle = 100;
+  angle = get_angle();
   Serial.print(angle);
-  Serial.println("");
+  Serial.print(",");
   if(angle>0){
     motors(-rotate_speed, rotate_speed);
   }else if(angle<0){
@@ -95,4 +94,8 @@ void motors(int vst, int vdr){
     ledcWrite(mdChannel, abs(vdr));
     ledcAttachPin(md1, mdChannel);
   }
+  Serial.print(vst);
+  Serial.print(",");
+  Serial.print(vdr);
+  Serial.println("");
 }
