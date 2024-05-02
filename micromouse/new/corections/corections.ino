@@ -9,22 +9,27 @@
 Adafruit_MPU6050 mpu;
 float yaw=0, angle;
 float elapsedTime, currentTime, previousTime;
+sensors_event_t a, g, temp; 
 int rotate_speed = 150;
 int stop_speed = -20;
+float error;
 
 const float RTD = 57.2957795;
 
-int ms1=15;
-int ms2=2;
-int md1=0;
-int md2=4;
+int ms1=4;
+int ms2=13;
+int md1=16;
+int md2=17;
 
 const int freq = 1000;
-const int msChannel = 0;
-const int mdChannel = 1;
+const int ms1Channel = 0;
+const int ms2Channel = 1;
+const int md1Channel = 2;
+const int md2Channel = 3;
 const int resolution = 8;
 void setup(void) {
   Serial.begin(115200);
+  
   while (!Serial) {
     delay(10); // will pause Zero, Leonardo, etc until serial console opens
   }
@@ -36,22 +41,31 @@ void setup(void) {
       delay(10);
     }
   }
-
-  mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
-  mpu.setGyroRange(MPU6050_RANGE_250_DEG);
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_260_HZ);
   pinMode(ms1, OUTPUT);
   pinMode(ms2, OUTPUT);
   pinMode(md1, OUTPUT);
   pinMode(md2, OUTPUT);
-  ledcSetup(msChannel, freq, resolution);
-  ledcSetup(mdChannel, freq, resolution);
+  digitalWrite(ms1, LOW);
+  digitalWrite(ms2, LOW);
+  digitalWrite(md1, LOW);
+  digitalWrite(md2, LOW);
+  ledcSetup(ms1Channel, freq, resolution);
+  ledcSetup(ms2Channel, freq, resolution);
+  ledcSetup(md1Channel, freq, resolution);
+  ledcSetup(md2Channel, freq, resolution);
+  ledcAttachPin(ms1, ms1Channel);
+  ledcAttachPin(ms2, ms2Channel);
+  ledcAttachPin(md1, md1Channel);
+  ledcAttachPin(md2, md2Channel);
+  error = get_error();
 }
 
 void loop() {
   angle = get_angle();
   Serial.print(angle);
-  Serial.print(",");
+  Serial.println("");
   if(angle>0){
     motors(-rotate_speed, rotate_speed);
   }else if(angle<0){
@@ -66,36 +80,36 @@ float get_angle(){
   currentTime = millis();            // Current time actual time read
   elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
   /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp; 
+  
   mpu.getEvent(&a, &g, &temp);
-  yaw =  yaw - g.gyro.z *elapsedTime;
-  return yaw*RTD;
+  yaw =  yaw + (g.gyro.z-error) *elapsedTime ;
+  return -(yaw)*RTD;
+  delay(1);
 }
 void motors(int vst, int vdr){
   if(vst >= 0){
-    ledcDetachPin(ms1);
-    digitalWrite(ms1, LOW);
-    ledcWrite(msChannel, vst);
-    ledcAttachPin(ms2, msChannel);
+    ledcWrite(ms2Channel, vst);
+    ledcWrite(ms1Channel, 0);
   }else{
-    ledcDetachPin(ms2);
-    digitalWrite(ms2, LOW);
-    ledcWrite(msChannel, abs(vst));
-    ledcAttachPin(ms1, msChannel);
+    ledcWrite(ms2Channel, 0);
+    ledcWrite(ms1Channel, abs(vst));
   }
   if(vdr >= 0){
-    ledcDetachPin(md1);
-    digitalWrite(md1, LOW);
-    ledcWrite(mdChannel, vdr);
-    ledcAttachPin(md2, mdChannel);
+    ledcWrite(md2Channel, vdr);
+    ledcWrite(md1Channel, 0);
   }else{
-    ledcDetachPin(md2);
-    digitalWrite(md2, LOW);
-    ledcWrite(mdChannel, abs(vdr));
-    ledcAttachPin(md1, mdChannel);
+    ledcWrite(md2Channel, 0);
+    ledcWrite(md1Channel, abs(vdr));
   }
-  Serial.print(vst);
-  Serial.print(",");
-  Serial.print(vdr);
-  Serial.println("");
+}
+
+float get_error(){
+  float sum = 0.00000001;
+  mpu.getEvent(&a, &g, &temp);
+  for(int i = 0;i<2000;i++){
+    sum = sum+g.gyro.z;
+    Serial.println(sum);
+  }
+  sum /=2000;
+  return sum;
 }
