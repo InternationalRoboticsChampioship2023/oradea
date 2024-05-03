@@ -1,0 +1,3 @@
+﻿  Source.cpp
+E:\exercitii sau app c++\fgcdsavhjdvhnjsbhvjbd\Source.cpp(197,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  fgcdsavhjdvhnjsbhvjbd.vcxproj -> E:\exercitii sau app c++\fgcdsavhjdvhnjsbhvjbd\x64\Debug\fgcdsavhjdvhnjsbhvjbd.exe
