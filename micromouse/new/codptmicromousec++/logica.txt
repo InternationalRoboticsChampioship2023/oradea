@@ -1,0 +1,17 @@
+0 0
+0 1 -> right
+
+0 0
+1 0 -> forward
+
+1 1
+1 0 -> left
+
+1 1
+0 1 -> backwards
+
+
+if right -> turn 90 move 1 block
+if left -> turn -90 move 1 block
+if forward-> move 1 block
+if backwards -> move -1 block
