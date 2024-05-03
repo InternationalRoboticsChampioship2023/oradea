@@ -37,9 +37,10 @@ const int md2Channel = 3;
 const int resolution = 8;
 
 int rotate_speed = 110;
-int stop_speed = -45;
+int stop_speed = -20;
 int move_speed = 110;
 int correction_speed = 40;
+int corection_encoder_speed = 70;
 
 
 
@@ -65,7 +66,7 @@ void setup(){
   readFile(SD, "/instruct.txt");
 
   mpu.begin();
-  mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_260_HZ);
   get_error();
   pinMode(ms1, OUTPUT);
@@ -110,8 +111,8 @@ void loop(){
         correction();
         motors(vs, vd);
       }
-      vs = stop_speed;
-      vd = stop_speed;
+      //vs = stop_speed;
+      //vd = stop_speed;
       motors_stop('m');
       instruct.removeFirst();
       delay(1000);
@@ -122,17 +123,12 @@ void loop(){
     }else if(instruct[0].mode=='r'){
       Serial.print(instruct[0].value);
       desired_angle+=instruct[0].value;
-      while((int)real_angle!=(int)desired_angle){
+      while(real_angle>desired_angle+0.3||real_angle<desired_angle-0.3){
         Serial.print(real_angle);
         Serial.print(" ");
         Serial.println(desired_angle);
-        vs=0;
-        vd=0;
-        rotate();
-        motors(vs, vd);
+        rotate();  
       }
-      vs = stop_speed;
-      vd = stop_speed;
       motors_stop('r');
       instruct.removeFirst();
       delay(1000);
@@ -145,28 +141,33 @@ void loop(){
   }
 }
 
-void motors_stop(char mode){
-  if(mode == 'm'){
-    motors(-255*sgn(vs_old),-255*sgn(vs_old));
+void motors_stop(char m){
+  if(m == 'm'){
+    motors(-255*sgn(vs_old),-255*sgn(vd_old));
     delay(move_speed/5);
     motors(stop_speed,stop_speed);
-  }else if(mode == 'r'){
-    motors(sgn(vs_old)*-255,sgn(vs_old)*-255);
-    delay(rotate_speed/5);
-    motors(sgn(vs_old)*stop_speed*-1,sgn(vs_old)*stop_speed*-1);
+  }else if(m == 'r'){
+    motors(sgn(vs_old)*-255,sgn(vd_old)*-255);
+    delay(rotate_speed/4);
+    motors(sgn(vs_old)*stop_speed,sgn(vd_old)*stop_speed);
   }else{
-    motors(0,0);
+    motors(stop_speed,stop_speed);
   }
 }
 
 void rotate(){
+  vs=0;
+  vd=0;
   get_angle(real_angle);
-  if((int)real_angle>(int)desired_angle){
+  if(real_angle>desired_angle){
     vs -=rotate_speed;
     vd+=rotate_speed;
-  }else if((int)real_angle<(int)desired_angle){
+  }else if(real_angle<desired_angle){
     vd-=rotate_speed;
     vs+=rotate_speed;
+  }
+  if(real_angle!=desired_angle){
+    motors(vs, vd);
   }
 }
 
