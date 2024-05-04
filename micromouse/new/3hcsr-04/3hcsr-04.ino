@@ -6,12 +6,9 @@ const int echoPinS = 26;
 const int echoPinM = 25;
 const int echoPinD = 33;
 
-
-float distanceS, distanceM, distanceD;
-bool wallS, wallM, wallD;
 int distforwall = 6;
 
-struct cell{
+struct cell_sesnor{
   bool wallS;
   bool wallM;
   bool wallD;
@@ -26,35 +23,19 @@ void setup() {
 }
 
 void loop() {
-  distanceS = get_sensor(echoPinS);
-  distanceM = get_sensor(echoPinM);
-  distanceD = get_sensor(echoPinD);
-  if(distanceS < 6){//in cell dist from sensor to wall is 3.1cm
-    wallS = 1;
-  }else{
-    wallS = 0;
-  }
-  if(distanceM < 6){
-    wallM = 1;
-  }else{
-    wallM = 0;
-  }
-  if(distanceD < 6){
-    wallD = 1;
-  }else{
-    wallD = 0;
-  }
-  Serial.print(wallS);
+  cell_sesnor walls = get_walls();
+  Serial.print(walls.wallS);
   Serial.print(",");
-  Serial.print(wallM);
+  Serial.print(walls.wallM);
   Serial.print(",");
-  Serial.print(wallD);
+  Serial.print(walls.wallD);
   Serial.println("");
   //delay(100);
 }
 
-cell get_walls(){
-  cell aux;
+cell_sesnor get_walls(){
+  cell_sesnor aux;
+  float distanceS, distanceM, distanceD;
   distanceS = get_sensor(echoPinS);
   distanceM = get_sensor(echoPinM);
   distanceD = get_sensor(echoPinD);

@@ -57,7 +57,7 @@ void floodfill(int x, int y, int cost) {
 List<br> best_route;
 void findBestRoute(int start_x, int start_y) {
     // If the starting point has cost 0, return directly
-
+    best_route.clear();
     // Explore the best route and store it into a vector
     int x = start_x, y = start_y;
     while (dist_maze[x][y] > 0) {
@@ -163,7 +163,7 @@ int main()
         }
         else {
             Serial.print("m");
-            Serial.print(cnt*160);
+            Serial.print(cnt*180);
             Serial.println();
             cnt = 1;
             if (directions[i - 1] < (directions[i] - 1) % 4) {
@@ -174,7 +174,7 @@ int main()
             }
         }
     }
-    Serial.print("m160");
+    Serial.print("m180");
 
 }
 

@@ -66,19 +66,19 @@ vector<pair<int, int>> findBestRoute(int start_x, int start_y) {
         //cout << "Exploring cell: (" << x << ", " << y << ")" << endl;
         best_route.push_back({ x, y });
         // Choose the neighboring cell with the next lowest cost
-        if (x > 0 && dist_maze[x - 1][y] == dist_maze[x][y] - 1) {
+        if ((x > 0 && dist_maze[x - 1][y] == dist_maze[x][y] - 1) && maze[x][y].up == 0) {
             //cout << "Selected neighbor: (" << x - 1 << ", " << y << ")" << endl;
             x--;
         }
-        else if (y > 0 && dist_maze[x][y - 1] == dist_maze[x][y] - 1) {
+        else if ((y > 0 && dist_maze[x][y - 1] == dist_maze[x][y] - 1) && maze[x][y].left == 0) {
             //cout << "Selected neighbor: (" << x << ", " << y - 1 << ")" << endl;
             y--;
         }
-        else if (x < 15 && dist_maze[x + 1][y] == dist_maze[x][y] - 1) {
+        else if ((x < 15 && dist_maze[x + 1][y] == dist_maze[x][y] - 1) && maze[x][y].down == 0) {
             //cout << "Selected neighbor: (" << x + 1 << ", " << y << ")" << endl;
             x++;
         }
-        else if (y < 15 && dist_maze[x][y + 1] == dist_maze[x][y] - 1) {
+        else if ((y < 15 && dist_maze[x][y + 1] == dist_maze[x][y] - 1) && maze[x][y].right == 0) {
             //cout << "Selected neighbor: (" << x << ", " << y + 1 << ")" << endl;
             y++;
         }
