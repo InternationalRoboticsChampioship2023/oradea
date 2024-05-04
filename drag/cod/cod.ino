@@ -51,8 +51,8 @@ void loop(){
   //Serial.println(dir_read());
   if(start == true){
     if(end_line == false){
-      viteza_st = 1300;//modify
-      viteza_dr = 1300;
+      viteza_st = 1100;//modify
+      viteza_dr = 1100;
       angle = dir_read();
       if(angle>0){
         viteza_st -= kp*angle;
