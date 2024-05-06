@@ -211,7 +211,8 @@ void loop() {
   }
 }
 
-//always put the mouse in the start cell with wall on the left and front
+//always put the mouse in the start cell with 
+//jos
 void maze_work(){
   cell_sensor cs = get_walls();
   //generate te walls of the cell;
@@ -274,15 +275,19 @@ void maze_work(){
     for (int i = best_route.getSize()-1; i >0; i--) {
         if (best_route[i - 1].first < best_route[i].first) {
             directions.add(1);
+            poz.y--;
         }
         else if (best_route[i - 1].first > best_route[i].first) {
             directions.add(3);
+            poz.y++;
         }
         else if (best_route[i - 1].second > best_route[i].second) {
             directions.add(2);
+            poz.x++;
         }
         else if (best_route[i - 1].second < best_route[i].second) {
             directions.add(0);
+            poz.x--;
         }
     }
     instruction aux;
@@ -346,17 +351,17 @@ cell_sensor get_walls(){
   distanceS = get_sensor(echoPinS);
   distanceM = get_sensor(echoPinM);
   distanceD = get_sensor(echoPinD);
-  if(distanceS < 6){//in cell dist from sensor to wall is 3.1cm
+  if(distanceS < distforwall){//in cell dist from sensor to wall is 3.1cm
     aux.wallS = 1;
   }else{
     aux.wallS = 0;
   }
-  if(distanceM < 6){
+  if(distanceM < distforwall){
     aux.wallM = 1;
   }else{
     aux.wallM = 0;
   }
-  if(distanceD < 6){
+  if(distanceD < distforwall){
     aux.wallD = 1;
   }else{
     aux.wallD = 0;

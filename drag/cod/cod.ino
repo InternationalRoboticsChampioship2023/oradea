@@ -70,20 +70,22 @@ void loop(){
       stanga.writeMicroseconds(viteza_st);
       dreapta.writeMicroseconds(viteza_dr);
     }else{
-      viteza_st=0;
-      viteza_dr=0;
+      viteza_st=1000;
+      viteza_dr=1000;
+      stanga.writeMicroseconds(viteza_st);
+      dreapta.writeMicroseconds(viteza_dr);
       picior.write(140);
     }
   }else{
-    viteza_st=0;
-    viteza_dr=0;
+    viteza_st=1000;
+    viteza_dr=1000;
+    stanga.writeMicroseconds(viteza_st);
+    dreapta.writeMicroseconds(viteza_dr);
     picior.write(90);
   }
 
   if(digitalRead(2) == HIGH){
     end_line == true;
-    viteza_st=0;
-    viteza_dr=0;
     picior.write(140);
   }
 
