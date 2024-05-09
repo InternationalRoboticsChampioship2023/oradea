@@ -74,7 +74,11 @@ void loop()
         exception(3);
       }
       dirServo.write(dir);
-      motor.setSpeed(acc*reverse);
+      if(reverse == 0){
+        motor.setSpeed(acc);
+      }else{
+        motor.setSpeed(-acc);
+      }
     }
   }else{
     timeout++;
