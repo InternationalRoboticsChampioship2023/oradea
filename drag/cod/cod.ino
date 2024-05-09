@@ -8,7 +8,7 @@ int viteza_st=180, viteza_dr=180;
 bool end_line = false;
 bool start = false;
 float z=0;
-
+#define startstopbutton A1;
 Servo stanga;
 Servo dreapta;
 Servo picior;
@@ -28,7 +28,7 @@ void setup(){
   picior.attach(3);
   picior.write(90);
   delay(7000);
-  start = true;
+  start = false;
 }
 
 float dir_read(){
