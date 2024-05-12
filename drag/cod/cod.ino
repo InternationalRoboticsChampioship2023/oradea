@@ -3,12 +3,12 @@
  
 const int MPU_addr=0x68;
 float angle,error;
-float kp=10;
+float kp=1;
 int viteza_st=180, viteza_dr=180;
 bool end_line = false;
 bool start = false;
 float z=0;
-
+//#define startstopbutton A1;
 Servo stanga;
 Servo dreapta;
 Servo picior;
@@ -20,14 +20,15 @@ void setup(){
   Wire.write(0x00);
   Wire.endTransmission(true);
   Serial.begin(9600);
-  error = calc_error();
+  error = 0.0098;//calc_error();
   stanga.attach(5);
   stanga.writeMicroseconds(1000);
   dreapta.attach(6);
   dreapta.writeMicroseconds(1000);
   picior.attach(3);
-  picior.write(90);
+  picior.write(90); // original 90
   delay(7000);
+  pinMode(A1,INPUT);
   start = true;
 }
 
@@ -48,8 +49,24 @@ float dir_read(){
 }
 
 void loop(){
-  //Serial.println(dir_read());
+  if(digitalRead(2) == LOW){
+    end_line == true;
+    picior.write(140);
+    viteza_st=1000;
+    viteza_dr=1000;
+    stanga.writeMicroseconds(viteza_st);
+    dreapta.writeMicroseconds(viteza_dr);
+    while(1){
+      ;
+    }
+  }
+
+  if(digitalRead(A1) == HIGH){
+    start = true;
+   // Serial.print("Da");
+  }
   if(start == true){
+    //angle = dir_read();
     if(end_line == false){
       viteza_st = 1100;//modify
       viteza_dr = 1100;
@@ -59,17 +76,25 @@ void loop(){
       }else if(angle<0){
         viteza_dr += kp*angle;
       }
-      Serial.print(angle);
-      Serial.print(",");
-      Serial.print(viteza_st);
-      Serial.print(",");
-      Serial.print(viteza_dr);
-      Serial.print(",");
-      Serial.print(digitalRead(2));
-      Serial.println("");
+     //Serial.println(angle);
+      //Serial.print(",");
+      //Serial.print(viteza_st);
+      //Serial.print(",");
+      //Serial.print(viteza_dr);
+      //Serial.print(",");
+      //Serial.print(digitalRead(2));
+      //Serial.println("");
+
+      if(viteza_st>1100){
+        viteza_st=1100;
+      }
+      if(viteza_dr>1100){
+        viteza_dr=1100;
+      }
       stanga.writeMicroseconds(viteza_st);
       dreapta.writeMicroseconds(viteza_dr);
     }else{
+      //end_line=true;
       viteza_st=1000;
       viteza_dr=1000;
       stanga.writeMicroseconds(viteza_st);
@@ -77,6 +102,7 @@ void loop(){
       picior.write(140);
     }
   }else{
+    //start=false;
     viteza_st=1000;
     viteza_dr=1000;
     stanga.writeMicroseconds(viteza_st);
@@ -84,14 +110,7 @@ void loop(){
     picior.write(90);
   }
 
-  if(digitalRead(2) == HIGH){
-    end_line == true;
-    picior.write(140);
-  }
-
-  if(digitalRead(A1) == HIGH){
-    start = true;
-  }
+ 
   
 }
 
