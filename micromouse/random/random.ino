@@ -8,6 +8,8 @@
 #include <Wire.h>
 #define sgn(x) ((x) < 0 ? -1 : ((x) > 0 ? 1 : 0))
 
+int cell_size = 160;
+
 const float RTD = 57.2957795;
 
 Adafruit_MPU6050 mpu;
@@ -36,39 +38,31 @@ const int md1Channel = 2;
 const int md2Channel = 3;
 const int resolution = 8;
 
-int rotate_speed = 70;
+int rotate_speed = 80;
 int stop_speed = -20;
-int move_speed = 80;
-int correction_speed = 40;
+int move_speed = 85;
+int correction_speed = 30;
 int corection_encoder_speed = 70;
 
-
-
-struct instruction{
-  char mode;
-  int value;//in mm(no negative values) or degrees
+struct cell_sesnor{
+  bool wallS;
+  bool wallM;
+  bool wallD;
 };
-List<instruction> instruct;
+
+const int trigPin = 32;
+const int echoPinS = 26;
+const int echoPinM = 25;
+const int echoPinD = 33;
+
+int distforwall = 6;
 
 void setup(){
   Serial.begin(115200);
   delay(1000);
-  if(!SD.begin(5)){
-    Serial.println("Card Mount Failed");
-    return;
-  }
-  uint8_t cardType = SD.cardType();
-
-  if(cardType == CARD_NONE){
-    Serial.println("No SD card attached");
-    return;
-  }
-  
-  readFile(SD, "/instruct.txt");
-
   mpu.begin();
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu.setFilterBandwidth(MPU6050_BAND_260_HZ);
+  mpu.setGyroRange(MPU6050_RANGE_250_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_184_HZ);
   get_error();
   pinMode(ms1, OUTPUT);
   pinMode(ms2, OUTPUT);
@@ -88,21 +82,56 @@ void setup(){
   ledcAttachPin(md2, md2Channel);
   attachInterrupt(digitalPinToInterrupt(EncoderS),DC_MotorS,RISING);
   attachInterrupt(digitalPinToInterrupt(EncoderD),DC_MotorD,RISING);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPinS, INPUT);
+  pinMode(echoPinM, INPUT);
+  pinMode(echoPinD, INPUT);
 }
 
 void loop(){
-  if(instruct.getSize()!=0){
-    Serial.print(instruct[0].mode);
-    if(instruct[0].mode == 'm'){
-      Serial.print(instruct[0].value);
-      Count_pulsesS = 0;
-      Count_pulsesD = 0;
-      avg=0;
-      int pls = (instruct[0].value * 110)/diam;
-      while(avg!=pls){
-        Serial.print(avg);
-        Serial.print(" ");
-        Serial.println(pls);
+  cell_sesnor walls = get_walls();
+  if(walls.wallS ==  0 && (walls.wallM==1 && walls.wallD==1)){
+    di(-1);
+  }else if(walls.wallM == 0 && (walls.wallS==1 && walls.wallD==1)){
+    di(0);
+  }else if(walls.wallD == 0 && (walls.wallM==1 && walls.wallS==1)){
+    di(1);
+  }else if((walls.wallS == 0 && walls.wallM == 0)&&walls.wallD==1){
+    di(random(-1,0));
+  }else if((walls.wallM == 0 && walls.wallD==0)&&walls.wallS==1){
+    di(random(0,1));
+  }else if((walls.wallS==0 && walls.wallD==0
+  )&&walls.wallM==1){
+    int x=random(0,1);
+    if(x==0)x--;
+    di(x);
+  }else if(walls.wallS == 0 && (walls.wallM==0 && walls.wallD==0)){
+    di(random(-1,1));
+  }else if(walls.wallS == 1 && (walls.wallM==1 && walls.wallD==1)){
+    di(-1);
+    di(-1);
+  }
+}
+
+void di(int i){//-1 ->left, 0->front, 1->right
+  desired_angle+=90*i;
+    while(real_angle>desired_angle+0.05||real_angle<desired_angle-0.05){
+        //Serial.print(real_angle);
+        //Serial.print(" ");
+        //Serial.println(desired_angle);
+        rotate();  
+    }
+    desired_angle = real_angle;
+    if(i!=0){
+      motors_stop('r');
+      delay(500);
+    }
+    Count_pulsesS = 0;
+    Count_pulsesD = 0;
+    avg=0;
+    int pls = (cell_size * 110)/diam;
+    while(avg!=pls){
         vs = move_speed;
         vd = move_speed;
         if(avg>pls){
@@ -112,34 +141,8 @@ void loop(){
         correction();
         motors(vs, vd);
       }
-      //vs = stop_speed;
-      //vd = stop_speed;
       motors_stop('m');
-      instruct.removeFirst();
       delay(500);
-      
-
-
-      
-    }else if(instruct[0].mode=='r'){
-      Serial.print(instruct[0].value);
-      desired_angle+=instruct[0].value;
-      while(real_angle>desired_angle+0.3||real_angle<desired_angle-0.3){
-        //Serial.print(real_angle);
-        //Serial.print(" ");
-        //Serial.println(desired_angle);
-        rotate();  
-      }
-      motors_stop('r');
-      instruct.removeFirst();
-      delay(500);
-    }
-    Serial.println();
-  }else{
-    motors_stop('s');
-    Serial.print("done");
-    Serial.println();
-  }
 }
 
 void motors_stop(char m){
@@ -148,12 +151,49 @@ void motors_stop(char m){
     delay(move_speed/5);
     motors(stop_speed,stop_speed);
   }else if(m == 'r'){
-    motors(sgn(vs_old)*-255,sgn(vd_old)*-255);
-    delay(rotate_speed/3);
-    motors(sgn(vs_old)*stop_speed,sgn(vd_old)*stop_speed);
+    //motors(sgn(vs_old)*-255,sgn(vd_old)*-255);
+    //delay(rotate_speed/2);
+    //motors(sgn(vs_old)*stop_speed,sgn(vd_old)*stop_speed);
+    motors(0,0);
   }else{
     motors(stop_speed,stop_speed);
   }
+}
+
+cell_sesnor get_walls(){
+  cell_sesnor aux;
+  float distanceS, distanceM, distanceD;
+  distanceS = get_sensor(echoPinS);
+  distanceM = get_sensor(echoPinM);
+  distanceD = get_sensor(echoPinD);
+  if(distanceS < distforwall){//in cell dist from sensor to wall is 3.1cm
+    aux.wallS = 1;
+  }else{
+    aux.wallS = 0;
+  }
+  if(distanceM < distforwall){
+    aux.wallM = 1;
+  }else{
+    aux.wallM = 0;
+  }
+  if(distanceD < distforwall){
+    aux.wallD = 1;
+  }else{
+    aux.wallD = 0;
+  }
+  return aux;
+}
+
+int get_sensor(int pin){
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  float d;
+  d = pulseIn(pin, HIGH);
+  delay(60);
+  return(d*.0343)/2;
 }
 
 void rotate(){
@@ -188,6 +228,7 @@ void get_angle(float& yaw){
   /* Get new sensor events with the readings */
   mpu.getEvent(&a, &g, &temp);
   yaw -= (g.gyro.z-error) *elapsedTime*RTD ;
+  delay(1);
 }
 
 void motors(int vst, int vdr){
@@ -237,70 +278,4 @@ void DC_MotorD(){
     Count_pulsesD--;
   }
   avg = (Count_pulsesS + Count_pulsesD)/2;
-}
-
-void readFile(fs::FS &fs, const char * path){
-  File file = fs.open(path);
-  if(!file){
-    Serial.println("Failed to open file for reading");
-    while(1){
-      ;
-    }
-  }
-  
-  if(file.available()){
-    instruction aux;
-    int a=0;
-    bool neg=false;
-    char x;
-    x=file.read();
-    while(x!='e'){
-      if(x!=13){
-        aux.mode = x;
-        a=0;
-        x=file.read();
-        if(x=='-'){
-          neg = true;
-          x=file.read();
-        }
-        while(x!=13){
-          a=a*10+(x-'0');
-          x=file.read();
-        }
-        if(neg == true){
-          a=-a;
-          neg = false;
-        }
-        aux.value = a;
-      }else{
-        instruct.add(aux);
-        aux.mode = 0;
-        aux.value=0;
-        file.read();
-        x=file.read();
-      }
-    }
-  }
-  file.close();
-  for(int i=0;i<instruct.getSize();i++){
-    Serial.print(instruct[i].mode);
-    Serial.print(instruct[i].value);
-    Serial.println();
-  }
-}
-
-void writeFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Writing file: %s\n", path);
-
-  File file = fs.open(path, FILE_WRITE);
-  if(!file){
-    Serial.println("Failed to open file for writing");
-    return;
-  }
-  if(file.print(message)){
-    Serial.println("File written");
-  } else {
-    Serial.println("Write failed");
-  }
-  file.close();
 }

@@ -36,9 +36,9 @@ const int md1Channel = 2;
 const int md2Channel = 3;
 const int resolution = 8;
 
-int rotate_speed = 70;
+int rotate_speed = 110;
 int stop_speed = -20;
-int move_speed = 80;
+int move_speed = 110;
 int correction_speed = 40;
 int corection_encoder_speed = 70;
 
@@ -67,7 +67,7 @@ void setup(){
   readFile(SD, "/instruct.txt");
 
   mpu.begin();
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_260_HZ);
   get_error();
   pinMode(ms1, OUTPUT);
@@ -91,55 +91,21 @@ void setup(){
 }
 
 void loop(){
-  if(instruct.getSize()!=0){
-    Serial.print(instruct[0].mode);
-    if(instruct[0].mode == 'm'){
-      Serial.print(instruct[0].value);
       Count_pulsesS = 0;
       Count_pulsesD = 0;
       avg=0;
-      int pls = (instruct[0].value * 110)/diam;
-      while(avg!=pls){
-        Serial.print(avg);
+      int pls = (73.43 * 110)/diam;
+      while(Count_pulsesS!=pls || Count_pulsesD!=pls){
+        Serial.print(Count_pulsesS);
         Serial.print(" ");
         Serial.println(pls);
         vs = move_speed;
-        vd = move_speed;
-        if(avg>pls){
-          vs=-vs;
-          vd=-vd;
-        }
-        correction();
+        vd = -move_speed;
         motors(vs, vd);
       }
-      //vs = stop_speed;
-      //vd = stop_speed;
-      motors_stop('m');
-      instruct.removeFirst();
-      delay(500);
-      
-
-
-      
-    }else if(instruct[0].mode=='r'){
-      Serial.print(instruct[0].value);
-      desired_angle+=instruct[0].value;
-      while(real_angle>desired_angle+0.3||real_angle<desired_angle-0.3){
-        //Serial.print(real_angle);
-        //Serial.print(" ");
-        //Serial.println(desired_angle);
-        rotate();  
+      while(1){
+        ;
       }
-      motors_stop('r');
-      instruct.removeFirst();
-      delay(500);
-    }
-    Serial.println();
-  }else{
-    motors_stop('s');
-    Serial.print("done");
-    Serial.println();
-  }
 }
 
 void motors_stop(char m){
@@ -149,7 +115,7 @@ void motors_stop(char m){
     motors(stop_speed,stop_speed);
   }else if(m == 'r'){
     motors(sgn(vs_old)*-255,sgn(vd_old)*-255);
-    delay(rotate_speed/3);
+    delay(rotate_speed/4);
     motors(sgn(vs_old)*stop_speed,sgn(vd_old)*stop_speed);
   }else{
     motors(stop_speed,stop_speed);
@@ -188,6 +154,7 @@ void get_angle(float& yaw){
   /* Get new sensor events with the readings */
   mpu.getEvent(&a, &g, &temp);
   yaw -= (g.gyro.z-error) *elapsedTime*RTD ;
+  delayMicroseconds(100);
 }
 
 void motors(int vst, int vdr){

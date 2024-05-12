@@ -47,7 +47,7 @@ previousTime = currentTime;        // Previous time is stored before the actual 
   
   yaw =  yaw - g.gyro.z *elapsedTime;
   Serial.print(",");
-  Serial.print(yaw);
+  Serial.print(yaw*57.3);
   Serial.println("");
 
   delay(10);

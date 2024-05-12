@@ -17,11 +17,21 @@ CytronMD motor(PWM_DIR, 3, 2);  // PWM = Pin 3, DIR = Pin 4.
 int dir, acc,timeout = 0;
 bool reverse = false;
 bool gripSecvence = false;
-void setup()
-{
+
+Servo mid;  // create servo object to control a servo
+Servo base;
+int g1 = A0;
+int g2 = A1;
+bool grp = 1;
+void setup(){
   while (!Serial);
     Serial.begin(9600);
-    
+  pinMode(g1, OUTPUT);
+  pinMode(g2, OUTPUT);
+  mid.attach(5);  // attaches the servo on pin 9 to the servo object
+  base.attach(6);
+  setmid(180);
+  setbase(110);
   dirServo.attach(10);
   dirServo.write(90);
   motor.setSpeed(0);
@@ -40,7 +50,7 @@ void loop()
   if(Serial.available()>0){
     String data = Serial.readStringUntil('\n');
     if(data!=NULL){
-      grip();
+      seq_grip();
     }
   }
   if (radio.available())
@@ -48,6 +58,7 @@ void loop()
     timeout = 0;
     char msg[11] = {0};
     radio.read(&msg, sizeof(msg));
+    Serial.println(msg);
     if(sizeof(msg)!=11){
       exception(2);
     }
@@ -59,10 +70,14 @@ void loop()
     dir=0;
     reverse = msg[8]-'0';
     gripSecvence = msg[10]-'0';
-    if(gripSecvence == 1){
+    if(gripSecvence == 0){
+      grp = 1;
+    }
+    if(gripSecvence == 1 && grp != 0){
       dirServo.write(90);
       motor.setSpeed(0);
-      grip();
+      seq_grip();
+      grp  = 0;
     }else{
       for(int i =0;i<=2;i++){
         acc= acc*10+ (msg[i]-'0');
@@ -91,8 +106,65 @@ void loop()
 }
 
 
-void grip(){
-  //grip seqvence
+void seq_grip(){
+  grip(0);//open
+  delay(150);
+  grip(-1);//limbo
+  setbase(110);
+  setmid(180);
+  delay(1000);
+  setbase(70);
+  grip(1);
+  delay(1000);
+  setbase(110);
+  setmid(0);
+  grip(0);
+  delay(150);
+  grip(-1);
+  delay(1000);
+  setmid(180);
+}
+
+void grip(int state){
+  if(state == 1){
+    digitalWrite(g1, HIGH);
+    digitalWrite(g2, LOW);
+  }else if(state == 0){
+    digitalWrite(g1, LOW);
+    digitalWrite(g2, HIGH);
+  }else if(state == -1){
+    digitalWrite(g1, LOW);
+    digitalWrite(g2, LOW);
+  }
+}
+
+
+void setmid(int agl){
+  int angle = mid.read();
+  while(angle != agl){
+    if(angle > agl){
+      angle--;
+    }
+    if(angle < agl){
+      angle++;
+    }
+    mid.write(angle);
+    delay(10);
+  }
+}
+
+void setbase(int agl){
+  int angle = base.read();
+  while(angle != agl){
+    if(angle > agl){
+      angle--;
+    }
+    if(angle < agl){
+      angle++;
+    }
+    base.write(angle);
+    delay(10);
+  }
 }
 
 void exception(int ex){
