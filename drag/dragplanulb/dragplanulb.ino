@@ -14,7 +14,7 @@ int viteza_croaziera=255; /// se creste pana la maxim 255;
 int poz_ref=35;
 //best so far 15 91
 int Kp=1;  //se poate modifica  (acceleratie) valoare prea mare duce la instabilitate
-float Kd=40; //se poate modifica   (frana/redresare) valoare prea mare duce la instabilitate
+float Kd=45; //se poate modifica   (frana/redresare) valoare prea mare duce la instabilitate
 int eroare;
 int eroare_ant;
 int derivativ;
@@ -28,12 +28,15 @@ void setup()
   pinMode(MOTOR1_PIN2, OUTPUT);
   pinMode(MOTOR2_PIN1, OUTPUT);
   pinMode(MOTOR2_PIN2, OUTPUT);
+
+  pinMode(12,OUTPUT);
+  digitalWrite(12,LOW);
   // configure the sensors
   qtr.setTypeAnalog();
   Serial.begin(9600);
   //  qtr.setSensorPins((const uint8_t[]){A7, A6, A5, A4, A3, A2,A1,A0}, SensorCount);
   qtr.setSensorPins(pins, SensorCount);
-  qtr.setEmitterPin(2);
+  //qtr.setEmitterPin(2);
   delay(500);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
@@ -42,59 +45,68 @@ void setup()
     qtr.calibrate();
   }
   digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
- 
-  delay(1000);
+  //Serial.println(digitalRead(2));
+  delay(4000);
+  digitalWrite(12,HIGH);
+  //Serial.print(digitalRead(2));
+  
 }
 void loop()
-{
-  uint16_t position = qtr.readLineBlack(sensorValues)/100;
+{ 
+  if(digitalRead(2)==HIGH)
+  {
+    uint16_t position = qtr.readLineBlack(sensorValues)/100;
   
-  eroare=poz_ref-position;
-  //Serial.println(position);
-  derivativ=eroare-eroare_ant;
-  comanda=Kp*eroare+Kd*derivativ;
-  vitezaMS=viteza_croaziera+comanda;
-  vitezaMD=viteza_croaziera-comanda;
-  if(vitezaMS>=255)
-  {
-    vitezaMS=255;
-  }
-  if(vitezaMD>=255)
-  {
-    vitezaMD=255;
-  }
-  if(vitezaMS<=-255)
-  {
-    vitezaMS=-255;
-  }
-  if(vitezaMD<=-255)
-  {
-    vitezaMD=-255;
-  }
-  sp = finish();
-  if(sp == 1){
-   go(vitezaMS,vitezaMD); 
-  }else{
-    go(-20,-20);
-  }
-  eroare_ant=eroare;
-}
+    eroare=poz_ref-position;
+    //Serial.println(position);
+    derivativ=eroare-eroare_ant;
+    comanda=Kp*eroare+Kd*derivativ;
+    vitezaMS=viteza_croaziera+comanda;
+    vitezaMD=viteza_croaziera-comanda;
+    if(vitezaMS>=255)
+    {
+      vitezaMS=255;
+    }
+    if(vitezaMD>=255)
+    {
+      vitezaMD=255;
+    }
+    if(vitezaMS<=-255)
+    {
+      vitezaMS=-255;
+    }
+    if(vitezaMD<=-255)
+    {
+      vitezaMD=-255;
+    }
+    sp = finish();
+    if(sp == 1){
+     go(vitezaMS,vitezaMD); 
+    }else{
+      go(-30,-30);
+    }
+    eroare_ant=eroare;
+}else{
+  go(0,0);
+}}
 
 bool finish(){
   bool ok = 1;
   int cnt = 0;
   for(int i =0;i<8;i++){
-    if(analogRead(pins[i])<750){
+    //Serial.println(analogRead(pins[i]));
+    if(analogRead(pins[i])<850){
       cnt++;
     }
   }
-  if(cnt >6){
+  if(cnt >7){
     ok = 0;
   }
   return ok;
 }
 
 void go(int speedLeft, int speedRight) {
+  
   if (speedLeft > 0) {
     analogWrite(MOTOR1_PIN1, speedLeft);
     analogWrite(MOTOR1_PIN2, 0);
