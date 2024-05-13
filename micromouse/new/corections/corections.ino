@@ -14,6 +14,7 @@ sensors_event_t a, g, temp;
 int rotate_speed = 70;
 int stop_speed = -20;
 float error;
+float desired_angle=45;
 
 const float RTD = 57.2957795;
 
@@ -67,9 +68,9 @@ void loop() {
   angle = get_angle();
   Serial.print(angle);
   Serial.println("");
-  if(angle>0){
+  if(angle>desired_angle){
     motors(-rotate_speed, rotate_speed);
-  }else if(angle<0){
+  }else if(angle<desired_angle){
     motors(rotate_speed, -rotate_speed);
   }else{
     motors(stop_speed, stop_speed);
@@ -107,10 +108,10 @@ void motors(int vst, int vdr){
 float get_error(){
   float sum = 0.00000001;
   mpu.getEvent(&a, &g, &temp);
-  for(int i = 0;i<2000;i++){
+  for(int i = 0;i<4000;i++){
     sum = sum+g.gyro.z;
     Serial.println(sum);
   }
-  sum /=2000;
+  sum /=4000;
   return sum;
 }
